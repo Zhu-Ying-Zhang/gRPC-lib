@@ -1,0 +1,70 @@
+plugins {
+    id 'java'
+    id 'com.google.protobuf' version "0.8.10"
+}
+
+group 'og.somatt'
+version '1.0-SNAPSHOT'
+def env = System.getProperty("env") ?: "local"
+sourceCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+
+    // https://mvnrepository.com/artifact/com.google.protobuf/protobuf-java
+    compile group: 'com.google.protobuf', name: 'protobuf-java', version: '3.12.4'
+
+    // https://mvnrepository.com/artifact/io.grpc/grpc-all
+    compile group: 'io.grpc', name: 'grpc-all', version: '1.31.0'
+
+}
+
+sourceSets {
+    main {
+        java {
+            srcDir 'src/main/protoGen'
+        }
+        proto {
+            srcDir "$projectDir/gRPC-lib/proto'"
+        }
+    }
+}
+
+protobuf {
+    protoc {
+        artifact = 'com.google.protobuf:protoc:3.12.4'
+    }
+
+    plugins {
+        grpc {
+            artifact = 'io.grpc:protoc-gen-grpc-java:1.31.0'
+        }
+    }
+
+    generateProtoTasks {
+        ofSourceSet('main').each { task ->
+            task.builtins {
+                java{
+                    outputSubDir = 'protoGen'
+                }
+            }
+            task.plugins {
+                grpc {
+                    outputSubDir = 'protoGen'
+                }
+            }
+        }
+    }
+    generatedFilesBaseDir = "$projectDir/src/"
+}
+
+task cleanProtoGen {
+    doFirst {
+        delete("$projectDir/src/main/protoGen")
+    }
+}
+clean.dependsOn cleanProtoGen
