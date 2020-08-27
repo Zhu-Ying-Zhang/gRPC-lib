@@ -10,8 +10,8 @@
 /.idea/assetWizardSettings.xml
 .DS_Store
 src/main/protoGen
+src/main/proto
 /build
 /captures
 .externalNativeBuild
 .cxx
-
